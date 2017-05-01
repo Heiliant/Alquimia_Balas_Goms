@@ -6,6 +6,7 @@
 #include <set>
 #include <windows.h>
 #include <cstdlib>
+#include <algorithm>
 #include "funciones.h"
 
 enum class status
@@ -28,6 +29,9 @@ struct pairHash {
 
 };
 
+bool myfunction(std::string &a, std::string &b) {
+	return (a < b);
+}
 
 void main()
 {
@@ -140,13 +144,13 @@ void main()
 
 	std::string prueba;
 
-	leerComando(prueba);
+	leerComando(prueba, currentList, elements_basics);
 
 	int x = 10;
 }
 
 
-void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList) //esta a medias, la ire haciendo a medida que tengamos las funciones
+void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics) //esta a medias, la ire haciendo a medida que tengamos las funciones
 {
 	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
 	//std::cin.clear(); clears all error state flags
@@ -157,50 +161,63 @@ void leerComando(std::string &comandoJugador, std::vector<std::string> &currentL
 	
 	if (comandoJugador.find("add") != std::string::npos) //si lo encontramos...
 	{
-		if (comandoJugador.find("basics") == std::string::npos) {
-
+		if (comandoJugador.find("basics") == std::string::npos) {//pero no encontramos la palabra basics, significa que el player
+			//quiere duplicar un elemento de la lista.
 				std::string addon = "add ";
 				std::string elem1;
 				elem1 = comandoJugador.substr(comandoJugador.find("add") + addon.length(),
 					comandoJugador.find(',') - (comandoJugador.find("add") + addon.length()));
-				std::cout << elem1;
+				std::cout << elem1 << std::endl;
 				int elem1I = atoi(elem1.c_str()); //atoi ignora los espacios que pueda haber delante y/o detrás de los números
 
 				add(elem1I, currentList);
 			}
-		else {
-				//llamamos a la funcion addbasics
+		else {// si SI encontramos basics, llamamos a la función addbasics y añadimos los 4 elementos básicos a la currentList
+			addBasics(currentList, elementsBasics);
 			}
-		}
+		} //add done (+add basics)
 
 
 
 	if (comandoJugador.find("delete") != std::string::npos) {
-
-	}
+		std::string addon = "delete ";
+		std::string elem1 = comandoJugador.substr(comandoJugador.find("delete")+addon.length());
+		int elem1I = atoi(elem1.c_str());
+		_delete(elem1I, currentList);
+	} //delete done
 
 
 
 	if (comandoJugador.find("info") != std::string::npos) {
+		std::string addon = "info ";
+		std::string elem1 = comandoJugador.substr(comandoJugador.find("info") + addon.length());
+		int elem1I = atoi(elem1.c_str());
 
-	}
+		informasao(elem1I, currentList);
+	} //info done
 
 
 	if (comandoJugador.find("clean") != std::string::npos) {
-
-	}
+		clean(currentList);
+	} //clean done
 
 
 	if (comandoJugador.find("sort") != std::string::npos) {
-
-	}
+		std::sort(currentList.begin(), currentList.end(), myfunction);
+	} //sort done
 
 }
 
 void add(int numero, std::vector<std::string> &currentList) //duplica un elemento de la lista
 {
-	currentList.push_back(currentList.at(numero-1));
-	std::cout << "he pusheado!";
+	if ((numero-1)<currentList.size() && (numero-1)>0) 
+		currentList.push_back(currentList.at(numero - 1));
+		
+}
+
+void _delete(int numero, std::vector<std::string> &currentList) {
+	if((numero - 1)<currentList.size() && (numero - 1)>0)
+		currentList.erase(currentList.begin()+(numero-1));
 }
 
 void addBasics(std::vector <std::string> &currentList, std::vector<std::string> &elements_basics)
@@ -211,16 +228,11 @@ void addBasics(std::vector <std::string> &currentList, std::vector<std::string> 
 
 }
 
-void BorrarElement(std::vector<std::string> &currentList, int &numero)
-{
-	currentList.erase(currentList.begin()+(numero-1));
-}
-
 void informasao(int &indice, std::vector<std::string> &currentList)
 {
 	std::string concatenacion = {"https://en.wikipedia.org/wiki/" + currentList.at(indice - 1) };
 
-	ShellExecuteA(NULL, "open", "https://en.wikipedia.org", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecuteA(NULL, "open", concatenacion.c_str, NULL, NULL, SW_SHOWNORMAL);
 }
 
 void clean(std::vector<std::string> &currentList)
@@ -250,7 +262,7 @@ void Tutorial()
 	std::cout << std::endl;
 	std::cout << "Si el jugador escribe “delete​” y el número de un elemento disponible en la lista, se elimina el elemento al que hace referencia.​" << std::endl;
 	std::cout << std::endl;
-	std::cout << "Si el jugador escribe “info​” y el número de un elemento disponible en la lista, se abre en el navegador la página de Wikipedia(u otra enciclopedia)" << std::endl;
+	std::cout << "Si el jugador escribe “info​” y el número de un elemento disponible en la lista, se abre en el navegador la página de Wikipedia" << std::endl;
 	std::cout << "con la información acerca del elemento.​" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Si el jugador escribe “sort​” se ordenan todos los elementos por orden alfabético." << std::endl;
