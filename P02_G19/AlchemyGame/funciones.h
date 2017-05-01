@@ -1,7 +1,7 @@
 #pragma once
 void dataLoad();
 bool myfunction(std::string &a, std::string &b);
-void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics);
+void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics, std::unordered_map <std::pair<std::string, std::string>, std::string, pairHash> &MapaFormulas);
 void add(int numero, std::vector<std::string> &currentList);
 void _delete(int numero, std::vector<std::string> &currentList);
 void addBasics(std::vector <std::string> &currentList, std::vector<std::string> &elements_basics);

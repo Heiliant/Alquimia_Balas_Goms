@@ -130,11 +130,12 @@ void dataLoad()
 	formulas.shrink_to_fit();
 }
 
-void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics) //esta a medias, la ire haciendo a medida que tengamos las funciones
+void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics, 
+	std::unordered_map <std::pair<std::string, std::string>, std::string, pairHash> &MapaFormulas) 
 {
 	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
 	 //buscamos "add"
-	
+	std::cout << comandoJugador << std::endl;
 	if (comandoJugador.find("add") != std::string::npos) //si lo encontramos...
 	{
 		if (comandoJugador.find("basics") == std::string::npos) {//pero no encontramos la palabra basics, significa que el player
@@ -181,16 +182,14 @@ void leerComando(std::string &comandoJugador, std::vector<std::string> &currentL
 	}
 
 	else {
-		std::string::iterator w;
-		for (char i : comandoJugador) {
-			static int z = 0;
-			if (i != ' ') {
-				w = comandoJugador.begin()+(z);
-				break;
-			}
-			++z;
-		}
-		std::string elem1 = comandoJugador.substr((comandoJugador.begin()+int(w)), comandoJugador.find(' '));
+		comandoJugador.resize((std::remove(comandoJugador.begin(), comandoJugador.end(), ' '))-comandoJugador.begin());
+		std::cout << comandoJugador << std::endl;
+		
+		std::size_t coma = comandoJugador.find(',');
+		int elem1I = atoi(comandoJugador.substr(0, coma).c_str());
+		int elem2I = atoi(comandoJugador.substr(coma+1).c_str());
+		std::string newElem = MapaFormulas.at( std::pair<std::string, std::string>(currentList.at(elem1I), currentList.at(elem2I)));
+		currentList.push_back(newElem);
 	}
 
 }
