@@ -141,27 +141,29 @@ void main()
 
 	leerComando(prueba);
 
-	std::cout << prueba;
+	int x = 10;
 }
 
 
 void leerComando(std::string &comandoJugador) //esta a medias, la ire haciendo a medida que tengamos las funciones
 {
-	std::cin >> comandoJugador;
-	std::getline(std::cin, comandoJugador);
-	std::cin.clear(); // clears all error state flags
+	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
+	//std::cin.clear(); clears all error state flags
 					  // extracts characters from the input buffer and discards them
-	std::cin.ignore(std::cin.rdbuf()->in_avail());
-
-	std::size_t encontrado = comandoJugador.find("add");
-
-	if (encontrado != std::string::npos)
+	
+	std::cout << "Input:" << comandoJugador << std::endl;
+	std::size_t encontrado = comandoJugador.find("add"); //buscamos "add"
+	
+	if (encontrado != std::string::npos) //si lo encontramos...
 	{
-		std::string ordenAdd;
-		ordenAdd = comandoJugador.substr(encontrado+1);
+		std::cout << "Encontardo en:" << encontrado << std::endl;
 
-		ordenAdd.substr(encontrado);
-	}
+		std::string elem1, elem2;
+		elem1 = comandoJugador.substr(encontrado+4, comandoJugador.find(' '));
+		std::cout << "elem1:" << elem1 << std::endl;
+		elem2 = comandoJugador.substr(comandoJugador.find(' '), comandoJugador.find(' '));
+		std::cout << "elem2:" << elem2;
+		}
 
 	encontrado = comandoJugador.find("delete");
 
@@ -223,6 +225,7 @@ void clean(std::vector<std::string> &currentList)
 	for (std::string i : currentListPurifier) {
 		currentList.push_back(i);
 	}
+	currentList.shrink_to_fit();
 }
 
 void Tutorial()
