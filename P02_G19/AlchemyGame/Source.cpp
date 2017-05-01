@@ -146,47 +146,52 @@ void main()
 }
 
 
-void leerComando(std::string &comandoJugador) //esta a medias, la ire haciendo a medida que tengamos las funciones
+void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList) //esta a medias, la ire haciendo a medida que tengamos las funciones
 {
 	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
 	//std::cin.clear(); clears all error state flags
 					  // extracts characters from the input buffer and discards them
 	
 	std::cout << "Input:" << comandoJugador << std::endl;
-	std::size_t encontrado = comandoJugador.find("add"); //buscamos "add"
+	 //buscamos "add"
 	
-	if (encontrado != std::string::npos) //si lo encontramos...
+	if (comandoJugador.find("add") != std::string::npos) //si lo encontramos...
 	{
-		std::string addon = "add ";
-		std::string comaespacio = ", ";
-		std::string elem1, elem2;
-		elem1 = comandoJugador.substr(encontrado+addon.length(), comandoJugador.find(',')-(encontrado+addon.length())); 
-		elem2 = comandoJugador.substr(comandoJugador.find(", ")+comaespacio.length(), (comandoJugador.find(' ') - (comandoJugador.find(", ")+comaespacio.length())));
-		int elem1I = atoi(elem1.c_str());
-		int elem2I = atoi(elem2.c_str());  //atoi ignora los espacios que pueda haber delante y/o detrás de los números
-		
+		if (comandoJugador.find("basics") == std::string::npos) {
 
+				std::string addon = "add ";
+				std::string elem1;
+				elem1 = comandoJugador.substr(comandoJugador.find("add") + addon.length(),
+					comandoJugador.find(',') - (comandoJugador.find("add") + addon.length()));
+				std::cout << elem1;
+				int elem1I = atoi(elem1.c_str()); //atoi ignora los espacios que pueda haber delante y/o detrás de los números
+
+				add(elem1I, currentList);
+			}
+		else {
+				//llamamos a la funcion addbasics
+			}
 		}
 
-	encontrado = comandoJugador.find("delete");
 
-	if (encontrado != std::string::npos) {
 
-	}
-
-	encontrado = comandoJugador.find("info");
-
-	if (encontrado != std::string::npos) {
+	if (comandoJugador.find("delete") != std::string::npos) {
 
 	}
 
-	encontrado = comandoJugador.find("clean");
-	if (encontrado != std::string::npos) {
+
+
+	if (comandoJugador.find("info") != std::string::npos) {
 
 	}
 
-	encontrado = comandoJugador.find("sort");
-	if (encontrado != std::string::npos) {
+
+	if (comandoJugador.find("clean") != std::string::npos) {
+
+	}
+
+
+	if (comandoJugador.find("sort") != std::string::npos) {
 
 	}
 
@@ -194,7 +199,8 @@ void leerComando(std::string &comandoJugador) //esta a medias, la ire haciendo a
 
 void add(int numero, std::vector<std::string> &currentList) //duplica un elemento de la lista
 {
-	currentList.push_back(currentList[numero]);
+	currentList.push_back(currentList.at(numero-1));
+	std::cout << "he pusheado!";
 }
 
 void addBasics(std::vector <std::string> &currentList, std::vector<std::string> &elements_basics)
