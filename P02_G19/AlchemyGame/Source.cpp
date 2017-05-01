@@ -78,7 +78,7 @@ void main()
 		key2.erase();
 	}
 
-	//imprimo para comprobar y va bien
+	//imprimo para comprobar y va gut
 	for (auto i : MapaFormulas) {
 		std::cout << i.first.first << "+" << i.first.second << "=" << i.second << std::endl;
 	}
