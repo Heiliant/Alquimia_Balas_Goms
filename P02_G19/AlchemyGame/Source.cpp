@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <windows.h>
+#include <cstdlib>
 #include "funciones.h"
 
 enum class status
@@ -156,13 +157,15 @@ void leerComando(std::string &comandoJugador) //esta a medias, la ire haciendo a
 	
 	if (encontrado != std::string::npos) //si lo encontramos...
 	{
-		std::cout << "Encontardo en:" << encontrado << std::endl;
-
+		std::string addon = "add ";
+		std::string comaespacio = ", ";
 		std::string elem1, elem2;
-		elem1 = comandoJugador.substr(encontrado+4, comandoJugador.find(' '));
-		std::cout << "elem1:" << elem1 << std::endl;
-		elem2 = comandoJugador.substr(comandoJugador.find(' '), comandoJugador.find(' '));
-		std::cout << "elem2:" << elem2;
+		elem1 = comandoJugador.substr(encontrado+addon.length(), comandoJugador.find(',')-(encontrado+addon.length())); 
+		elem2 = comandoJugador.substr(comandoJugador.find(", ")+comaespacio.length(), (comandoJugador.find(' ') - (comandoJugador.find(", ")+comaespacio.length())));
+		int elem1I = atoi(elem1.c_str());
+		int elem2I = atoi(elem2.c_str());  //atoi ignora los espacios que pueda haber delante y/o detrás de los números
+		
+
 		}
 
 	encontrado = comandoJugador.find("delete");
