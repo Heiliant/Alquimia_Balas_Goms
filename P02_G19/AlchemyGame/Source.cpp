@@ -26,9 +26,188 @@ bool myfunction(std::string &a, std::string &b) {
 	return (a < b);
 }
 
-void dataLoad()
+std::string leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics,
+	std::unordered_map <std::pair<std::string, std::string>, std::string, pairHash> &MapaFormulas, std::string &bufer) 
 {
+	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
+	 //buscamos "add"
+	std::cout << comandoJugador << std::endl;
+	if (comandoJugador.find("add") != std::string::npos) //si lo encontramos...
+	{
+		if (comandoJugador.find("basics") == std::string::npos) {//pero no encontramos la palabra basics, significa que el player
+			//quiere duplicar un elemento de la lista.
+				std::string addon = "add ";
+				std::string elem1;
+				elem1 = comandoJugador.substr(comandoJugador.find("add") + addon.length(),
+					comandoJugador.find(',') - (comandoJugador.find("add") + addon.length()));
+				std::cout << elem1 << std::endl;
+				int elem1I = atoi(elem1.c_str()); //atoi ignora los espacios que pueda haber delante y/o detrás de los números
 
+				add(elem1I, currentList);
+			}
+		else {// si SI encontramos basics, llamamos a la función addbasics y añadimos los 4 elementos básicos a la currentList
+			addBasics(currentList, elementsBasics);
+			}
+		return bufer;
+		} //add done (+add basics)
+
+	else if (comandoJugador.find("delete") != std::string::npos) {
+		std::string addon = "delete ";
+		std::string elem1 = comandoJugador.substr(comandoJugador.find("delete")+addon.length());
+		int elem1I = atoi(elem1.c_str());
+		_delete(elem1I, currentList);
+		return bufer;
+	} //delete done
+
+	else if (comandoJugador.find("info") != std::string::npos) {
+		std::string addon = "info ";
+		std::string elem1 = comandoJugador.substr(comandoJugador.find("info") + addon.length());
+		int elem1I = atoi(elem1.c_str());
+
+		informasao(elem1I, currentList);
+		return bufer;
+	} //info done
+
+	else if (comandoJugador.find("clean") != std::string::npos) {
+		clean(currentList);
+		return bufer;
+	} //clean done
+
+	else if (comandoJugador.find("sort") != std::string::npos) {
+		std::sort(currentList.begin(), currentList.end(), myfunction);
+		return bufer;
+	} //sort done
+
+	else if (comandoJugador.find("help") != std::string::npos) {
+		Tutorial();
+		bufer = "El jugador empieza con lso 4 elementos basicos, Aire, Fuego, Agua y Tierra. \n";
+		bufer += "Cuando se combinan 2 elementos y estos producen un resultado, se suma 1 a la puntuacion";
+		bufer += " del player\nsi el nuevo elemento no se encuentra en la lista de elementos del jugador.\n";
+		bufer += "Para combinar dos elementos introduce el numero en lista del primero de los dos seguido de coma y espacio,";
+		bufer += " y el numero en lista del segundo.\n EJ: \n1.-Fire\n2.-Water\n1, 2\n\n";
+		bufer += "No se pueden combinar 2 elementos que ocupan la misma posicion en la lista\n";
+		bufer += "Si el jugador escribe \"add\" y el numero de un elemento disponible en la lista, se añade una copia del elemento al que hace referencia dentro de la lista.\n";
+		bufer += "Si el jugador escribe \"add basics​\" se añaden nuevas instancias de los 4 elementos basicos dentro de la lista de elementos.\n";
+		bufer += "Si el jugador escribe \"delete​\" y el numero de un elemento disponible en la lista, se elimina el elemento al que hace referencia.\n";
+		bufer += "Si el jugador escribe \"info​\" y el numero de un elemento disponible en la lista, se abre en el navegador la página de Wikipedia";
+		bufer += " con la información acerca del elemento.\n";
+		bufer += "Si el jugador escribe \"sort​\" se ordenan todos los elementos por orden alfabetico.\n";
+		bufer += "Si el jugador escribe \"clean​\" se eliminan todos los elementos que esten repetidos en la lista.\n";
+		bufer += "Si el jugador escribe \"help​\" se muestra un tutorial con todas las acciones previamente mencionadas que puede realizar el jugador durante la partida.";
+		return bufer;
+	}
+
+	else if (comandoJugador== "") { return bufer; }
+
+	else {
+		comandoJugador.resize((std::remove(comandoJugador.begin(), comandoJugador.end(), ' '))-comandoJugador.begin());
+		std::cout << comandoJugador << std::endl;
+		
+		std::size_t coma = comandoJugador.find(',');
+		int elem1I = atoi(comandoJugador.substr(0, coma).c_str());
+		int elem2I = atoi(comandoJugador.substr(coma + 1).c_str());
+		std::pair<std::string, std::string> clave (currentList.at(elem1I-1), currentList.at(elem2I-1));
+		
+		if ((MapaFormulas.find(make_pair(currentList.at(elem2I-1), currentList.at(elem1I-1))) == MapaFormulas.end() &&
+			MapaFormulas.find(make_pair(currentList.at(elem1I-1), currentList.at(elem2I-1))) == MapaFormulas.end()) ||
+			(elem1I==elem2I)) {
+			bufer = "Mixture Failed!";
+			return bufer;
+		}
+		else {
+			std::string newElem;
+			if (MapaFormulas.find(clave) != MapaFormulas.end()) {
+				newElem = MapaFormulas.at(clave);
+			}
+			else {
+				clave = make_pair(currentList.at(elem2I), currentList.at(elem1I));
+				newElem = MapaFormulas.at(clave);
+			}
+			currentList.push_back(newElem);
+			return bufer;
+		}
+	}
+
+}
+
+void add(int numero, std::vector<std::string> &currentList) //duplica un elemento de la lista
+{
+	if ((numero-1)<currentList.size() && (numero-1)>=0) 
+		currentList.push_back(currentList.at(numero - 1));
+		
+}
+
+void _delete(int numero, std::vector<std::string> &currentList) {
+	if((numero - 1)<currentList.size() && (numero - 1)>=0)
+		currentList.erase(currentList.begin()+(numero-1));
+}
+
+void addBasics(std::vector <std::string> &currentList, std::vector<std::string> &elements_basics)
+{
+	for (std::string a : elements_basics) {
+		currentList.push_back(a);
+	}
+
+}
+
+void informasao(int &indice, std::vector<std::string> &currentList)
+{
+	std::string concatenacion = {"https://en.wikipedia.org/wiki/" + currentList.at(indice - 1) };
+
+	ShellExecuteA(NULL, "open", concatenacion.c_str(), NULL, NULL, SW_SHOWNORMAL);
+}
+
+void clean(std::vector<std::string> &currentList)
+{
+	std::set <std::string> currentListPurifier;
+	for (std::string i : currentList) {
+		currentListPurifier.insert(i);
+	}
+	currentList.clear();
+
+	for (std::string i : currentListPurifier) {
+		currentList.push_back(i);
+	}
+	currentList.shrink_to_fit();
+}
+
+void Tutorial()
+{
+	std::cout << "El jugador empieza con los 4 elementos basicos: Air, Fire, Water y Earth​" << std::endl;
+	std::cout << "Cuando se combinan 2 elementos y estos producen un resultado, se suma 1 a la	puntuacion " << std::endl;
+	std::cout << "si el nuevo elemento no se encuentra en la lista de elementos del jugador." << std::endl;
+	std::cout << "Para combinar dos elementos introduzca el numero en lista del primero '', '' el numero en lista del segundo." << std::endl;
+	std::cout << "No se pueden combinar 2 elementos que ocupen la misma posicion en la lista.​" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"add\" y el numero de un elemento disponible en la lista, se añade una copia del elemento al que hace referencia dentro de la lista.​" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"add basics​\" se añaden nuevas instancias de los 4 elementos basicos dentro de la lista de elementos.​" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"delete​\" y el numero de un elemento disponible en la lista, se elimina el elemento al que hace referencia.​" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"info​\" y el numero de un elemento disponible en la lista, se abre en el navegador la página de Wikipedia" << std::endl;
+	std::cout << "con la información acerca del elemento.​" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"sort​\" se ordenan todos los elementos por orden alfabetico." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"clean​\" se eliminan todos los elementos que esten repetidos en la lista." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Si el jugador escribe \"help​\" se muestra un tutorial con todas las acciones previamente mencionadas que puede realizar el jugador durante la partida." << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+}
+
+void listPrint(std::vector<std::string> currentList) {
+	int w = 0;
+	for (std::string i : currentList) {
+		
+		std::cout << ++w << ".- " << i << std::endl;
+	}
+}
+
+void main() {
+	
 	status componente = status::_Value;
 
 	std::string linea;
@@ -128,158 +307,17 @@ void dataLoad()
 
 	formulas.clear();
 	formulas.shrink_to_fit();
-}
-
-void leerComando(std::string &comandoJugador, std::vector<std::string> &currentList, std::vector<std::string> &elementsBasics, 
-	std::unordered_map <std::pair<std::string, std::string>, std::string, pairHash> &MapaFormulas) 
-{
-	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
-	 //buscamos "add"
-	std::cout << comandoJugador << std::endl;
-	if (comandoJugador.find("add") != std::string::npos) //si lo encontramos...
-	{
-		if (comandoJugador.find("basics") == std::string::npos) {//pero no encontramos la palabra basics, significa que el player
-			//quiere duplicar un elemento de la lista.
-				std::string addon = "add ";
-				std::string elem1;
-				elem1 = comandoJugador.substr(comandoJugador.find("add") + addon.length(),
-					comandoJugador.find(',') - (comandoJugador.find("add") + addon.length()));
-				std::cout << elem1 << std::endl;
-				int elem1I = atoi(elem1.c_str()); //atoi ignora los espacios que pueda haber delante y/o detrás de los números
-
-				add(elem1I, currentList);
-			}
-		else {// si SI encontramos basics, llamamos a la función addbasics y añadimos los 4 elementos básicos a la currentList
-			addBasics(currentList, elementsBasics);
-			}
-		} //add done (+add basics)
-
-	else if (comandoJugador.find("delete") != std::string::npos) {
-		std::string addon = "delete ";
-		std::string elem1 = comandoJugador.substr(comandoJugador.find("delete")+addon.length());
-		int elem1I = atoi(elem1.c_str());
-		_delete(elem1I, currentList);
-	} //delete done
-
-	else if (comandoJugador.find("info") != std::string::npos) {
-		std::string addon = "info ";
-		std::string elem1 = comandoJugador.substr(comandoJugador.find("info") + addon.length());
-		int elem1I = atoi(elem1.c_str());
-
-		informasao(elem1I, currentList);
-	} //info done
-
-	else if (comandoJugador.find("clean") != std::string::npos) {
-		clean(currentList);
-	} //clean done
-
-	else if (comandoJugador.find("sort") != std::string::npos) {
-		std::sort(currentList.begin(), currentList.end(), myfunction);
-	} //sort done
-
-	else if (comandoJugador.find("help") != std::string::npos) {
-		Tutorial();
-	}
-
-	else {
-		comandoJugador.resize((std::remove(comandoJugador.begin(), comandoJugador.end(), ' '))-comandoJugador.begin());
-		std::cout << comandoJugador << std::endl;
-		
-		std::size_t coma = comandoJugador.find(',');
-		int elem1I = atoi(comandoJugador.substr(0, coma).c_str());
-		int elem2I = atoi(comandoJugador.substr(coma+1).c_str());
-		std::string newElem = MapaFormulas.at( std::pair<std::string, std::string>(currentList.at(elem1I), currentList.at(elem2I)));
-		currentList.push_back(newElem);
-	}
-
-}
-
-void add(int numero, std::vector<std::string> &currentList) //duplica un elemento de la lista
-{
-	if ((numero-1)<currentList.size() && (numero-1)>=0) 
-		currentList.push_back(currentList.at(numero - 1));
-		
-}
-
-void _delete(int numero, std::vector<std::string> &currentList) {
-	if((numero - 1)<currentList.size() && (numero - 1)>=0)
-		currentList.erase(currentList.begin()+(numero-1));
-}
-
-void addBasics(std::vector <std::string> &currentList, std::vector<std::string> &elements_basics)
-{
-	for (std::string a : elements_basics) {
-		currentList.push_back(a);
-	}
-
-}
-
-void informasao(int &indice, std::vector<std::string> &currentList)
-{
-	std::string concatenacion = {"https://en.wikipedia.org/wiki/" + currentList.at(indice - 1) };
-
-	ShellExecuteA(NULL, "open", concatenacion.c_str(), NULL, NULL, SW_SHOWNORMAL);
-}
-
-void clean(std::vector<std::string> &currentList)
-{
-	std::set <std::string> currentListPurifier;
-	for (std::string i : currentList) {
-		currentListPurifier.insert(i);
-	}
-	currentList.clear();
-
-	for (std::string i : currentListPurifier) {
-		currentList.push_back(i);
-	}
-	currentList.shrink_to_fit();
-}
-
-void Tutorial()
-{
-	std::cout << "El jugador empieza con los 4 elementos basicos: Air, Fire, Water y Earth​" << std::endl;
-	std::cout << "Cuando se combinan 2 elementos y estos producen un resultado, se suma 1 a la	puntuacion " << std::endl;
-	std::cout << "si el nuevo elemento no se encuentra en la lista de elementos del jugador." << std::endl;
-	std::cout << "Para combinar dos elementos introduzca el numero en lista del primero '', '' el numero en lista del segundo." << std::endl;
-	std::cout << "No se pueden combinar 2 elementos que ocupen la misma posicion en la lista.​" << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"add\" y el numero de un elemento disponible en la lista, se añade una copia del elemento al que hace referencia dentro de la lista.​" << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"add basics​\" se añaden nuevas instancias de los 4 elementos basicos dentro de la lista de elementos.​" << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"delete​\" y el numero de un elemento disponible en la lista, se elimina el elemento al que hace referencia.​" << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"info​\" y el numero de un elemento disponible en la lista, se abre en el navegador la página de Wikipedia" << std::endl;
-	std::cout << "con la información acerca del elemento.​" << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"sort​\" se ordenan todos los elementos por orden alfabetico." << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"clean​\" se eliminan todos los elementos que esten repetidos en la lista." << std::endl;
-	std::cout << std::endl;
-	std::cout << "Si el jugador escribe \"help​\" se muestra un tutorial con todas las acciones previamente mencionadas que puede realizar el jugador durante la partida." << std::endl;
-	std::cout << std::endl;
-	std::cout << std::endl;
-
-}
-
-void listPrint(std::vector<std::string> currentList) {
-	int w = 0;
-	for (std::string i : currentList) {
-		
-		std::cout << ++w << ".- " << i << std::endl;
-	}
-}
-
-void main() {
-	dataLoad();
+	std::string buffer;
 	std::vector<std::string> elements_basics = { "Fire", "Water", "Earth", "Air" };
 	std::vector <std::string> currentList(elements_basics);
 	Tutorial();
 
 	do {
+		std::cout << buffer << std::endl;
+		buffer = "";
 		std::string prueba = "";
 		listPrint(currentList);
-		leerComando(prueba, currentList, elements_basics);
+		leerComando(prueba, currentList, elements_basics, MapaFormulas, buffer);
 		system("cls");
 	} while (true);
 }
