@@ -3,7 +3,9 @@
 #include <fstream>
 #include <unordered_map>
 #include <vector>
+#include <set>
 #include <windows.h>
+#include "funciones.h"
 
 enum class status
 {
@@ -135,10 +137,11 @@ void main()
 
 	std::vector <std::string> currentList(elements_basics);
 
-
 	std::string prueba;
 
+	leerComando(prueba);
 
+	std::cout << prueba;
 }
 
 
@@ -155,7 +158,7 @@ void leerComando(std::string &comandoJugador) //esta a medias, la ire haciendo a
 	if (encontrado != std::string::npos)
 	{
 		std::string ordenAdd;
-		ordenAdd = comandoJugador.substr(encontrado);
+		ordenAdd = comandoJugador.substr(encontrado+1);
 
 		ordenAdd.substr(encontrado);
 	}
@@ -182,77 +185,43 @@ void leerComando(std::string &comandoJugador) //esta a medias, la ire haciendo a
 
 	}
 
-
-	if (comandoJugador == "add basics " || comandoJugador == "addbasics" || comandoJugador == "Add basics")
-	{
-		addBasics();
-	}
-
-	if (comandoJugador == "delete" || comandoJugador == "Delete")
-	{
-		std::cin >> a;
-		std::cin.clear();
-
-		BorrarElement(a);
-	}
-
-	if (comandoJugador == "info")
-	{
-		std::cin >> a;
-
-		if (a >= 0 && a <= currentList.size())
-		{
-			informasao(a);
-		}
-	}
-
-	if (comandoJugador == "clean" || comandoJugador == "Clean")
-	{
-		clean(currentList);
-	}
-
-	if (comandoJugador == "help" || comandoJugador == "Help")
-	{
-		Tutorial();
-	}
 }
 
-void add(int numero) //duplica un elemento de la lista
+void add(int numero, std::vector<std::string> &currentList) //duplica un elemento de la lista
 {
 	currentList.push_back(currentList[numero]);
 }
 
-void addBasics()
+void addBasics(std::vector <std::string> &currentList, std::vector<std::string> &elements_basics)
 {
-	for (int i = 0; i < elements_basics.size(); i++)
-	{
-		std::cout << elements_basics[i];
+	for (std::string a : elements_basics) {
+		currentList.push_back(a);
 	}
 
 }
 
-void BorrarElement(int numero)
+void BorrarElement(std::vector<std::string> &currentList, int &numero)
 {
-	currentList.erase(currentList[numero]);
+	currentList.erase(currentList.begin()+(numero-1));
 }
 
-void informasao(int indice)
+void informasao(int &indice, std::vector<std::string> &currentList)
 {
-	std::string concatenacion = currentList[indice];
+	std::string concatenacion = {"https://en.wikipedia.org/wiki/" + currentList.at(indice - 1) };
 
-	ShellExecute(NULL, "open", "https://en.wikipedia.org/wiki/" + concatenacion, NULL, NULL, SW_SHOWNORMAL);
+	ShellExecuteA(NULL, "open", "https://en.wikipedia.org", NULL, NULL, SW_SHOWNORMAL);
 }
 
-void clean(std::vector<std::string>hola)
+void clean(std::vector<std::string> &currentList)
 {
-	std::string repetidor = hola[0];
+	std::set <std::string> currentListPurifier;
+	for (std::string i : currentList) {
+		currentListPurifier.insert(i);
+	}
+	currentList.clear();
 
-	for (int i = 0; i<hola.size(); i++)
-	{
-		if (hola[i] == repetidor)
-		{
-			hola.erase(hola[i]);
-		}
+	for (std::string i : currentListPurifier) {
+		currentList.push_back(i);
 	}
 }
 
