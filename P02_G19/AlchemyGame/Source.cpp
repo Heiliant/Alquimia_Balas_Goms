@@ -7,8 +7,6 @@
 #include <windows.h>
 #include <cstdlib>
 #include <algorithm>
-#include "funciones.h"
-
 struct pairHash {
 
 	std::pair<std::string, std::string> a;
@@ -21,6 +19,7 @@ struct pairHash {
 	}
 
 };
+#include "funciones.h"
 
 bool myfunction(std::string &a, std::string &b) {
 	return (a < b);
@@ -31,7 +30,6 @@ std::string leerComando(std::string &comandoJugador, std::vector<std::string> &c
 {
 	std::getline(std::cin, comandoJugador); //el getline mete todo lo que habia en cin en comandoJugador IGNORANDO el '\n'
 	 //buscamos "add"
-	std::cout << comandoJugador << std::endl;
 	if (comandoJugador.find("add") != std::string::npos) //si lo encontramos...
 	{
 		if (comandoJugador.find("basics") == std::string::npos) {//pero no encontramos la palabra basics, significa que el player
@@ -51,15 +49,15 @@ std::string leerComando(std::string &comandoJugador, std::vector<std::string> &c
 		return bufer;
 		} //add done (+add basics)
 
-	else if (comandoJugador.find("delete") != std::string::npos) {
-		std::string addon = "delete ";
-		std::string elem1 = comandoJugador.substr(comandoJugador.find("delete")+addon.length());
+	else if (comandoJugador.find("delete") != std::string::npos) {//si encontramos delete...
+		std::string addon = "delete "; //sabemos que el player quiere borrar un elemento de la lista, así que hacemos el substring 
+		std::string elem1 = comandoJugador.substr(comandoJugador.find("delete")+addon.length()); //para encontrar dicho elemento
 		int elem1I = atoi(elem1.c_str());
 		_delete(elem1I, currentList);
 		return bufer;
 	} //delete done
 
-	else if (comandoJugador.find("info") != std::string::npos) {
+	else if (comandoJugador.find("info") != std::string::npos) { //exactamente lo mismo que con _delete y add
 		std::string addon = "info ";
 		std::string elem1 = comandoJugador.substr(comandoJugador.find("info") + addon.length());
 		int elem1I = atoi(elem1.c_str());
@@ -68,8 +66,8 @@ std::string leerComando(std::string &comandoJugador, std::vector<std::string> &c
 		return bufer;
 	} //info done
 
-	else if (comandoJugador.find("clean") != std::string::npos) {
-		clean(currentList);
+	else if (comandoJugador.find("clean") != std::string::npos) {//si leemos clean, llamamos a la función clean
+		clean(currentList);	//que mete la currentlist en un set y después la vuelve a pasar del set a la currentlist
 		return bufer;
 	} //clean done
 
@@ -99,31 +97,45 @@ std::string leerComando(std::string &comandoJugador, std::vector<std::string> &c
 
 	else if (comandoJugador== "") { return bufer; }
 
-	else {
-		comandoJugador.resize((std::remove(comandoJugador.begin(), comandoJugador.end(), ' '))-comandoJugador.begin());
-		std::cout << comandoJugador << std::endl;
-		
+	else {//AQUI
+		comandoJugador.resize( (std::remove(comandoJugador.begin(), comandoJugador.end(), ' '))-(comandoJugador.begin()));
+		//en esta línea, el remove elimina todos los chars coincidentes con ' ' en el rango especificado. Además, el remove
+		//devuelve un iterador que apunta a una posición más adelante del último elemento no removido (es decir, que es el nuevo
+		// end del string). De modo que si le resto el begin tengo un size_t que puedo usar para hacer resize del string y hacer
+		// que solo contenga la información útil (los números y la coma.
+
 		std::size_t coma = comandoJugador.find(',');
 		int elem1I = atoi(comandoJugador.substr(0, coma).c_str());
 		int elem2I = atoi(comandoJugador.substr(coma + 1).c_str());
-		std::pair<std::string, std::string> clave (currentList.at(elem1I-1), currentList.at(elem2I-1));
-		
-		if ((MapaFormulas.find(make_pair(currentList.at(elem2I-1), currentList.at(elem1I-1))) == MapaFormulas.end() &&
-			MapaFormulas.find(make_pair(currentList.at(elem1I-1), currentList.at(elem2I-1))) == MapaFormulas.end()) ||
-			(elem1I==elem2I)) {
-			bufer = "Mixture Failed!";
-			return bufer;
-		}
-		else {
-			std::string newElem;
-			if (MapaFormulas.find(clave) != MapaFormulas.end()) {
-				newElem = MapaFormulas.at(clave);
+
+		//antes de hacer nada, comprueba que los valores introducidos caigan dentro del size del vector.
+		//la primera comprobación engloba a la segunda porque si el elem1I o elem2I tienen el valor de una 
+		//posición que el vector no contiene, al hacer uso del currentList.at() para hacer el make_pair, 
+		//salta un error de compilación al no poder acceder al elemento especificado.
+		if (elem1I > 0 && elem1I <= currentList.size() && elem2I > 0 && elem2I <= currentList.size()) {
+			if ((MapaFormulas.find(make_pair(currentList.at(elem2I - 1), currentList.at(elem1I - 1))) == MapaFormulas.end() &&
+				MapaFormulas.find(make_pair(currentList.at(elem1I - 1), currentList.at(elem2I - 1))) == MapaFormulas.end()) ||
+				(elem1I == elem2I)) {
+				bufer = "Mixture Failed!";
+				return bufer;
 			}
 			else {
-				clave = make_pair(currentList.at(elem2I), currentList.at(elem1I));
-				newElem = MapaFormulas.at(clave);
+				std::pair<std::string, std::string> clave(currentList.at(elem1I - 1), currentList.at(elem2I - 1));
+				std::string newElem;
+				if (MapaFormulas.find(clave) != MapaFormulas.end()) {
+					newElem = MapaFormulas.at(clave);
+				}
+				else {
+					std::pair <std::string, std::string> clave2(currentList.at(elem2I-1), currentList.at(elem1I-1));
+					clave = clave2;
+					newElem = MapaFormulas.at(clave);
+				}
+				currentList.push_back(newElem);
+				return bufer;
 			}
-			currentList.push_back(newElem);
+		}
+		else {
+			bufer = "Unvalid command.\nType \"help\" to see the rules.";
 			return bufer;
 		}
 	}
@@ -198,12 +210,15 @@ void Tutorial()
 
 }
 
-void listPrint(std::vector<std::string> currentList) {
+void listPrint(std::vector<std::string> currentList, std::set<std::string> &discoveredElements, 
+	std::unordered_map <std::pair<std::string, std::string>, std::string, pairHash> &MapaFormulas) {
+
 	int w = 0;
 	for (std::string i : currentList) {
 		
 		std::cout << ++w << ".- " << i << std::endl;
 	}
+	std::cout << "\n-" << discoveredElements.size() << '/' << MapaFormulas.size() << std::endl;
 }
 
 void main() {
@@ -310,13 +325,21 @@ void main() {
 	std::string buffer;
 	std::vector<std::string> elements_basics = { "Fire", "Water", "Earth", "Air" };
 	std::vector <std::string> currentList(elements_basics);
+	std::set <std::string> discoveredElements;
+	for (std::string i : currentList) {
+		discoveredElements.insert(i);
+	}
+	int puntuation = 0;
 	Tutorial();
 
 	do {
 		std::cout << buffer << std::endl;
 		buffer = "";
 		std::string prueba = "";
-		listPrint(currentList);
+		for (std::string i : currentList) {
+			discoveredElements.insert(i);
+		}
+		listPrint(currentList, discoveredElements, MapaFormulas);
 		leerComando(prueba, currentList, elements_basics, MapaFormulas, buffer);
 		system("cls");
 	} while (true);
